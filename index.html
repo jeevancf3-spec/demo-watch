@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRONOS | Premium Watch Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlack: '#0A0A0A',      
+                        brandNavBlack: '#121212',   
+                        brandRed: '#C8102E',        
+                        brandRedHover: '#A00D25',   
+                        brandOffWhite: '#F9F9F9'    
+                    },
+                    animation: {
+                        'infinite-scroll': 'infinite-scroll 25s linear infinite',
+                    },
+                    keyframes: {
+                        'infinite-scroll': {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        /* Ultra-Responsive Mobile-First Hero View */
+        .hero-container {
+            position: relative;
+            height: 500vh;
+        }
+        @media (min-width: 768px) {
+            .hero-container { height: 800vh; }
+        }
+        .sticky-box {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #animation-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        .fade-element {
+            transition: opacity 0.1s ease-out;
+        }
+        /* Hide scrollbars elegantly */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-brandBlack text-brandOffWhite font-sans antialiased overflow-x-hidden">
+
+    <!-- 1. RESPONSIVE NAVIGATION BAR -->
+    <nav class="fixed top-0 left-0 w-full z-40 bg-brandNavBlack/90 backdrop-blur-md border-b border-zinc-900 px-4 md:px-8 py-4 flex justify-between items-center">
+        <a href="#" class="text-xl md:text-2xl font-bold tracking-widest text-brandRed">KRONOS</a>
+        
+        <div class="hidden md:flex space-x-8 text-sm font-medium tracking-wide">
+            <a href="#" class="text-brandRed transition">Home</a>
+            <a href="#shop" class="hover:text-brandRed transition">Collection</a>
+            <a href="#contact" class="hover:text-brandRed transition">Contact</a>
+        </div>
+
+        <div class="flex items-center space-x-4 md:space-x-6">
+            <!-- Instagram Icon in Nav -->
+            <a href="https://www.instagram.com/kronoo.in?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="hover:text-brandRed transition p-2"><i class="fa-brands fa-instagram text-lg md:text-xl"></i></a>
+            <!-- Cart Button -->
+            <button onclick="toggleCartModal()" class="hover:text-brandRed transition relative p-2 focus:outline-none">
+                <i class="fa-solid fa-bag-shopping text-lg md:text-xl"></i>
+                <span id="cart-count" class="absolute top-0 right-0 bg-brandRed text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+            </button>
+            <a href="#" class="hover:text-brandRed transition p-2"><i class="fa-solid fa-user text-lg md:text-xl"></i></a>
+        </div>
+    </nav>
+
+    <!-- 2. HERO SECTION -->
+    <div class="hero-container">
+        <div class="sticky-box px-6 md:px-24 pt-28 pb-8 md:pb-12">
+            <!-- Background Frames Canvas -->
+            <canvas id="animation-canvas"></canvas>
+            
+            <!-- Hero Typography -->
+            <div id="hero-text-box" class="relative z-10 max-w-xl text-left fade-element mt-2 md:mt-4">
+                <span class="text-brandRed tracking-widest text-xs font-bold uppercase block mb-2">// Designed by Precision</span>
+                <h1 class="text-3xl md:text-6xl font-black tracking-tight mb-3 text-brandOffWhite leading-tight uppercase">Redesigning <br><span class="text-brandRed">Time & Style</span></h1>
+                <p class="text-xs md:text-base text-zinc-400 max-w-sm md:max-w-md leading-relaxed">Experience haute horology through smooth, modern fluid mechanics.</p>
+            </div>
+            
+            <!-- Lower Action Row -->
+            <div class="relative z-10 flex flex-col space-y-4 md:space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="#shop" class="bg-brandRed text-white font-bold px-6 py-3 rounded-none hover:bg-brandRedHover transition duration-300 tracking-wider text-xs md:text-sm text-center shadow-lg shadow-brandRed/10">
+                        EXPLORE NOW
+                    </a>
+                    
+                    <div class="flex items-center space-x-5 text-lg md:text-xl text-zinc-400 justify-start">
+                        <a href="https://www.instagram.com/kronoo.in?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="hover:text-brandRed transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://youtube.com" target="_blank" class="hover:text-brandRed transition"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div id="hero-scroll-indicator" class="text-left animate-bounce fade-element">
+                    <p class="text-[8px] tracking-widest text-zinc-500 mb-0.5">SCROLL TO OBSERVE</p>
+                    <i class="fa-solid fa-arrow-down text-brandRed text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFINITE BRAND TICKER (SECTION DIVIDER) -->
+    <div class="w-full bg-brandNavBlack border-y border-zinc-900 py-3.5 relative z-30 overflow-hidden select-none flex">
+        <div class="flex whitespace-nowrap text-xs md:text-sm font-black tracking-widest text-zinc-500 uppercase space-x-12 animate-infinite-scroll">
+            <span>ROLEX</span> <span>•</span> <span>PATEK PHILIPPE</span> <span>•</span> <span>AUDEMARS PIGUET</span> <span>•</span> <span>KRONOS STUDIO</span> <span>•</span> <span>TAG HEUER</span> <span>•</span> <span>OMEGA</span> <span>•</span> <span>RICHARD MILLE</span> <span>•</span> <span>VANS</span> <span>•</span> <span>NIKE PREMIUM</span> <span>•</span> 
+            <!-- Duplicate for infinite loop mapping -->
+            <span>ROLEX</span> <span>•</span> <span>PATEK PHILIPPE</span> <span>•</span> <span>AUDEMARS PIGUET</span> <span>•</span> <span>KRONOS STUDIO</span> <span>•</span> <span>TAG HEUER</span> <span>•</span> <span>OMEGA</span> <span>•</span> <span>RICHARD MILLE</span> <span>•</span> <span>VANS</span> <span>•</span> <span>NIKE PREMIUM</span> <span>•</span>
+        </div>
+    </div>
+
+    <!-- 3. SHOP SECTION (Flipkart/Amazon Premium Minimal Style with Hover Interaction) -->
+    <section id="shop" class="py-16 md:py-24 w-full relative z-20 bg-white text-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+            
+            <div class="text-left mb-10 md:mb-14 border-l-4 border-brandRed pl-3">
+                <span class="text-zinc-400 tracking-widest text-[10px] md:text-xs font-bold uppercase block mb-0.5">Curated Series</span>
+                <h2 class="text-xl md:text-3xl font-black tracking-wide text-zinc-900 uppercase">The Chronograph Collection</h2>
+            </div>
+
+            <!-- Amazon/Flipkart Elegant Grid Layout -->
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <!-- Injected via JavaScript dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CONTACT SECTION -->
+    <section id="contact" class="py-16 px-4 max-w-4xl mx-auto relative z-20 bg-brandBlack border-t border-zinc-900">
+        <div class="text-center mb-10">
+            <span class="text-brandRed tracking-widest text-xs font-bold uppercase block mb-1.5">// Get In Touch</span>
+            <h2 class="text-2xl md:text-4xl font-black tracking-wide text-brandOffWhite uppercase">Connect With Kronos</h2>
+            <p class="text-zinc-500 text-xs md:text-sm mt-1">Have questions or want to order custom variants? Reach us anytime.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-zinc-950 p-6 md:p-12 border border-zinc-900">
+            <div class="space-y-3 text-center md:text-left">
+                <h3 class="text-base font-bold text-brandOffWhite uppercase tracking-wider">Official Support</h3>
+                <p class="text-zinc-500 text-xs">Drop us an email and our team will get back to you within 24 hours.</p>
+                <a href="mailto:support@krono.in" class="inline-flex items-center space-x-2 text-brandRed hover:text-white transition font-mono font-bold text-base md:text-lg">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>support@krono.in</span>
+                </a>
+            </div>
+
+            <div class="space-y-3 text-center md:text-left border-t md:border-t-0 md:border-l border-zinc-900 pt-6 md:pt-0 md:pl-8">
+                <h3 class="text-base font-bold text-brandOffWhite uppercase tracking-wider">Our Channels</h3>
+                <p class="text-zinc-500 text-xs">Follow our official community pages for fresh drops and updates.</p>
+                <div class="flex justify-center md:justify-start space-x-3 pt-1">
+                    <a href="https://www.instagram.com/kronoo.in?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="flex items-center space-x-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-zinc-400 hover:bg-brandRed hover:text-white hover:border-brandRed transition text-xs font-semibold">
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                    <a href="https://youtube.com" target="_blank" class="flex items-center space-x-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-zinc-400 hover:bg-brandRed hover:text-white hover:border-brandRed transition text-xs font-semibold">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span>YouTube</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. FULLSCREEN OVERLAY MODAL (Optimized for Mobile Keyboards) -->
+    <div id="product-modal" class="fixed inset-0 bg-brandBlack z-50 hidden flex flex-col w-full h-full overflow-y-auto no-scrollbar">
+        <!-- Back Bar -->
+        <div class="sticky top-0 bg-brandNavBlack border-b border-zinc-900 px-4 py-3 flex items-center justify-between z-30">
+            <button onclick="closeProductModal()" class="text-zinc-400 hover:text-brandRed flex items-center space-x-1 font-bold tracking-wider text-xs transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>BACK</span>
+            </button>
+            <span class="text-brandRed font-bold tracking-widest text-xs">KRONOS</span>
+        </div>
+        
+        <!-- Frame Layout -->
+        <div class="w-full max-w-4xl mx-auto flex flex-col md:flex-row flex-grow p-0 sm:p-4 md:p-8 gap-0 md:gap-6 items-stretch">
+            
+            <!-- Image Panel -->
+            <div id="modal-image-panel" class="w-full md:w-1/2 bg-black relative flex items-center justify-center aspect-square md:aspect-auto min-h-[260px] md:min-h-0">
+                <img id="modal-watch-img" src="" class="w-full h-full object-cover">
+                <div id="modal-stock-badge" class="absolute top-3 left-3 bg-brandRed text-white font-bold px-2 py-1 text-[9px] tracking-widest hidden">SOLD OUT</div>
+            </div>
+            
+            <!-- Interactive Area -->
+            <div class="w-full md:w-1/2 flex flex-col justify-between bg-zinc-950 p-5 md:p-8 border-t md:border-t-0 border-zinc-900">
+                
+                <!-- SCREEN A: SPECS VIEW -->
+                <div id="modal-product-view" class="flex flex-col justify-between h-full space-y-6">
+                    <div>
+                        <span class="text-brandRed text-[10px] font-bold uppercase tracking-widest mb-0.5 block">// Premium Edition</span>
+                        <h3 id="modal-watch-name" class="text-lg md:text-2xl font-black text-brandOffWhite mb-1 uppercase tracking-wide">Watch Name</h3>
+                        <p id="modal-watch-price" class="text-lg md:text-xl font-bold text-brandRed mb-4">₹0</p>
+                        
+                        <div class="border-t border-zinc-900 pt-3">
+                            <h4 class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Specifications</h4>
+                            <p id="modal-watch-desc" class="text-xs text-zinc-400 leading-relaxed">Details</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2.5 w-full">
+                        <button id="modal-add-btn" class="w-full bg-transparent hover:bg-zinc-900 text-brandOffWhite border border-zinc-800 py-3 text-xs font-bold tracking-widest transition">
+                            ADD TO CART
+                        </button>
+                        <button id="modal-buy-btn" class="w-full bg-brandRed hover:bg-brandRedHover text-white py-3 text-xs font-bold tracking-widest transition">
+                            BUY NOW (INSTANT CHECKOUT)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SCREEN B: ADVANCED ADDRESS OVERLAY -->
+                <div id="modal-checkout-view" class="hidden flex flex-col justify-between h-full">
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-brandRed text-[10px] font-bold uppercase tracking-widest block">// Shipping Details</span>
+                            <h3 class="text-base font-bold text-brandOffWhite uppercase tracking-wide">Delivery Address</h3>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Full Name *</label>
+                                <input type="text" id="cust-name" placeholder="Full name" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Mobile Number *</label>
+                                    <input type="tel" id="cust-phone" placeholder="WhatsApp Number" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">City / Town *</label>
+                                    <input type="text" id="cust-city" placeholder="City" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Pincode *</label>
+                                    <input type="number" id="cust-pincode" placeholder="6-digit code" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">State *</label>
+                                    <select id="cust-state" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                                        <option value="Kerala" selected>Kerala</option>
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Other">Other State</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Full Address *</label>
+                                <textarea id="cust-address" window-rows="2" placeholder="House info, Area, Street name" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandRed resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Landmark / Nearby</label>
+                                <input type="text" id="cust-landmark" placeholder="e.g., Near temple" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-brandRed">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-1.5 font-bold">Payment Method *</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="payment-method" value="Cash on Delivery (COD)" checked class="peer sr-only">
+                                        <div class="bg-zinc-900 border border-zinc-800 text-center py-2 text-[9px] font-bold uppercase text-zinc-400 peer-checked:border-brandRed peer-checked:text-brandRed transition">COD</div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="payment-method" value="FamPay" class="peer sr-only">
+                                        <div class="bg-zinc-900 border border-zinc-800 text-center py-2 text-[9px] font-bold uppercase text-zinc-400 peer-checked:border-brandRed peer-checked:text-brandRed transition">FamPay</div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="payment-method" value="Google Pay (GPay)" class="peer sr-only">
+                                        <div class="bg-zinc-900 border border-zinc-800 text-center py-2 text-[9px] font-bold uppercase text-zinc-400 peer-checked:border-brandRed peer-checked:text-brandRed transition">GPay</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-4 mt-4 border-t border-zinc-900">
+                        <button onclick="backToProductView()" class="bg-transparent hover:bg-zinc-900 text-zinc-500 border border-zinc-800 py-3 text-xs font-bold tracking-widest transition">CANCEL</button>
+                        <button onclick="sendOrderToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-xs font-bold tracking-widest transition flex items-center justify-center space-x-1">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>PLACE ORDER</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. SIDE CART OVERLAY -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex justify-end">
+        <div class="bg-brandNavBlack w-full max-w-sm h-full p-5 border-l border-zinc-900 flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center pb-4 border-b border-zinc-900">
+                    <h3 class="text-lg font-bold text-brandOffWhite">Your Cart</h3>
+                    <button onclick="toggleCartModal()" class="text-zinc-500 hover:text-brandRed text-xl">&times;</button>
+                </div>
+                <div id="cart-items-container" class="py-4 space-y-3 overflow-y-auto max-h-[65vh] no-scrollbar">
+                    <!-- Dynamic injection -->
+                </div>
+            </div>
+            <div class="border-t border-zinc-900 pt-4">
+                <div class="flex justify-between text-base font-bold mb-3">
+                    <span>Total:</span>
+                    <span id="cart-total-price" class="text-brandRed">₹0</span>
+                </div>
+                <button onclick="checkoutAlert()" class="w-full bg-brandRed hover:bg-brandRedHover text-white font-bold py-2.5 text-xs transition tracking-wider">PROCEED TO CHECKOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. FOOTER -->
+    <footer class="bg-zinc-950 border-t border-zinc-900 py-8 px-4 text-center text-zinc-600 text-xs">
+        <p>&copy; 2026 KRONOS Premium Watch Studio. Available at krono.in</p>
+    </footer>
+
+    <!-- INTERACTION LOGIC ENGINE -->
+    <script>
+        let currentActiveWatch = null;
+
+        // --- 1. FRAMES MULTI-DEVICE RESPONSIVE SCROLL RENDERING ---
+        const canvas = document.getElementById('animation-canvas');
+        const context = canvas.getContext('2d');
+        const heroTextBox = document.getElementById('hero-text-box');
+        const scrollIndicator = document.getElementById('hero-scroll-indicator');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            renderFrame(watchAnimation.frame);
+        }
+
+        const frameCount = 180;
+        const images = [];
+        const watchAnimation = { frame: 0 };
+
+        for (let i = 1; i <= frameCount; i++) {
+            const img = new Image();
+            img.src = `photo/ezgif-frame-${i.toString().padStart(3, '0')}.png`;
+            images.push(img);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function renderFrame(index) {
+            if (images[index] && images[index].complete) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                const img = images[index];
+                const imgRatio = img.width / img.height;
+                const canvasRatio = canvas.width / canvas.height;
+                let drawWidth, drawHeight, drawX, drawY;
+
+                if (canvasRatio > imgRatio) {
+                    drawWidth = canvas.width;
+                    drawHeight = canvas.width / imgRatio;
+                    drawX = 0;
+                    drawY = (canvas.height - drawHeight) / 2;
+                } else {
+                    drawWidth = canvas.height * imgRatio;
+                    drawHeight = canvas.height;
+                    drawX = (canvas.width - drawWidth) / 2;
+                    drawY = 0;
+                }
+                context.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            const heroContainer = document.querySelector('.hero-container');
+            const scrollTop = window.scrollY;
+            const maxScroll = heroContainer.scrollHeight - window.innerHeight;
+            if (maxScroll <= 0) return;
+            
+            let scrollPercent = scrollTop / maxScroll;
+            scrollPercent = Math.max(0, Math.min(1, scrollPercent));
+
+            const frameIndex = Math.min(frameCount - 1, Math.floor(scrollPercent * frameCount));
+            watchAnimation.frame = frameIndex;
+            renderFrame(frameIndex);
+
+            let textOpacity = 1 - (scrollPercent * 3.5); 
+            textOpacity = Math.max(0, textOpacity);
+            
+            heroTextBox.style.opacity = textOpacity;
+            scrollIndicator.style.opacity = textOpacity;
+            heroTextBox.style.pointerEvents = textOpacity === 0 ? 'none' : 'auto';
+        });
+
+        images[0].onload = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; renderFrame(0); };
+
+        // --- 2. 15 CHRONO DATA STORES ---
+        const watches = [
+            { id: 1, name: "Kronos Crimson Stealth", price: 18500, stock: 5, img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80", desc: "Matte black alloy build casing with scratch-resistant sapphire lenses." },
+            { id: 2, name: "Vanguard Obsidian Red", price: 24999, stock: 3, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Complex open heart automatic mechanism displaying 42hr internal dynamic reserves." },
+            { id: 3, name: "Emerald Phantom Diver", price: 21000, stock: 0, img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=500&q=80", desc: "Deep sea layout secure up to 200m depth under structural ceramic plates." }, 
+            { id: 4, name: "Minimalist Slate Minimal", price: 12500, stock: 12, img: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=500&q=80", desc: "Ultra thin form factors matching executive premium lifestyle profiles." },
+            { id: 5, name: "Apex Carbon Chrono", price: 45000, stock: 2, img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=500&q=80", desc: "Full genuine carbon fiber composite base structures for durability." },
+            { id: 6, name: "Jade Vintage Aero", price: 15200, stock: 0, img: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=500&q=80", desc: "Oversized tactical indicators referencing aviation heritage formats." }, 
+            { id: 7, name: "Monolith Slate Hybrid", price: 19800, stock: 7, img: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=500&q=80", desc: "Forged carbon shield architectures built for high stress activities." },
+            { id: 8, name: "Specter Racing Crimson", price: 28500, stock: 4, img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=500&q=80", desc: "Anodized race elements matching flexible high grip fluoroelastomer straps." },
+            { id: 9, name: "Verdant Shadow Auto", price: 11000, stock: 9, img: "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=500&q=80", desc: "Sweeping structural hand gears working via ambient motion kinetics." },
+            { id: 10, name: "Dark Command Tactical", price: 32000, stock: 1, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Stealth matte PVD operations featuring integrated physical split lap timers." },
+            { id: 11, name: "Alpha Marine Chrono", price: 23500, stock: 6, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80", desc: "Deep ocean finish dials with precision speed telemetry markings." },
+            { id: 12, name: "Titan Frost Kinetic", price: 27900, stock: 4, img: "https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&w=500&q=80", desc: "Brushed raw gray accents framing active structural engineering layout fields." },
+            { id: 13, name: "Aero Stealth Ghost", price: 16500, stock: 11, img: "https://images.unsplash.com/photo-1619134778706-7015533a6150?auto=format&fit=crop&w=500&q=80", desc: "Ultra light setups matching resilient industrial weave fiber profiles." },
+            { id: 14, name: "Royal Amber Horizon", price: 34000, stock: 3, img: "https://images.unsplash.com/photo-1517462964-21fdcec3f25b?auto=format&fit=crop&w=500&q=80", desc: "Hand selected dark amber genuine skin textures paired to gold layers." },
+            { id: 15, name: "Quantum Cyber Slate", price: 39500, stock: 2, img: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?auto=format&fit=crop&w=500&q=80", desc: "High concept architecture leveraging micro engraved metal geometric indices." }
+        ];
+
+        // --- 3. INJECT SIMPLE & PREMIUM MINIMAL FLIPKART/AMAZON STYLE GRID WITH HOVER EFFECT ---
+        const productGrid = document.getElementById('product-grid');
+
+        watches.forEach(watch => {
+            const isOutOfStock = watch.stock === 0;
+            const card = `
+                <div onclick="openProductModal(${watch.id})" class="bg-white border border-zinc-200 flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg rounded-none">
+                    <div class="relative overflow-hidden aspect-square w-full bg-zinc-50 p-2">
+                        <img src="${watch.img}" alt="${watch.name}" class="w-full h-full object-contain mx-auto transition-transform duration-500 group-hover:scale-105">
+                        ${isOutOfStock ? `
+                            <div class="absolute inset-0 bg-white/85 flex items-center justify-center">
+                                <span class="bg-zinc-800 text-white font-bold px-2 py-1 text-[8px] md:text-[9px] tracking-wider uppercase">Out of Stock</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="p-3 md:p-4 border-t border-zinc-100 bg-white">
+                        <h3 class="text-xs md:text-sm font-medium text-zinc-700 line-clamp-1 group-hover:text-brandRed transition-colors duration-300">${watch.name}</h3>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="text-zinc-950 font-bold text-xs md:text-sm">₹${watch.price.toLocaleString('en-IN')}</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold hidden sm:inline">Free Delivery</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            productGrid.innerHTML += card;
+        });
+
+        // --- 4. RESPONSIVE MODAL FLOWS ---
+        function openProductModal(id) {
+            const watch = watches.find(w => w.id === id);
+            if (!watch) return;
+
+            currentActiveWatch = watch;
+            const isOutOfStock = watch.stock === 0;
+
+            document.getElementById('modal-watch-img').src = watch.img;
+            document.getElementById('modal-watch-name').innerText = watch.name;
+            document.getElementById('modal-watch-price').innerText = `₹${watch.price.toLocaleString('en-IN')}`;
+            document.getElementById('modal-watch-desc').innerText = watch.desc;
+
+            const stockBadge = document.getElementById('modal-stock-badge');
+            const addBtn = document.getElementById('modal-add-btn');
+            const buyBtn = document.getElementById('modal-buy-btn');
+
+            backToProductView();
+
+            if (isOutOfStock) {
+                stockBadge.classList.remove('hidden');
+                addBtn.disabled = true;
+                addBtn.innerText = "OUT OF STOCK";
+                addBtn.className = "w-full bg-zinc-900 text-zinc-600 border border-zinc-800 py-3 text-xs font-bold tracking-widest cursor-not-allowed";
+                buyBtn.classList.add('hidden');
+            } else {
+                stockBadge.classList.add('hidden');
+                addBtn.disabled = false;
+                addBtn.innerText = "ADD TO CART";
+                addBtn.className = "w-full bg-transparent hover:bg-zinc-900 text-brandOffWhite border border-zinc-800 py-3 text-xs font-bold tracking-widest transition";
+                addBtn.onclick = function(e) { e.stopPropagation(); addToCart(watch.id); };
+                
+                buyBtn.classList.remove('hidden');
+                buyBtn.onclick = function(e) { e.stopPropagation(); triggerInstantCheckout(); };
+            }
+
+            document.getElementById('product-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function triggerInstantCheckout() {
+            document.getElementById('modal-product-view').classList.add('hidden');
+            document.getElementById('modal-checkout-view').classList.remove('hidden');
+        }
+
+        function backToProductView() {
+            document.getElementById('modal-checkout-view').classList.add('hidden');
+            document.getElementById('modal-product-view').classList.remove('hidden');
+        }
+
+        // --- 5. DATA TRANSMISSION FOR WHATSAPP ---
+        function sendOrderToWhatsApp() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const city = document.getElementById('cust-city').value.trim();
+            const pincode = document.getElementById('cust-pincode').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+            const landmark = document.getElementById('cust-landmark').value.trim();
+            const state = document.getElementById('cust-state').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            if (!name || !phone || !city || !pincode || !address) {
+                alert("Please fill all fields marked with (*).");
+                return;
+            }
+            if (pincode.length !== 6) {
+                alert("Enter a valid 6-digit Pincode.");
+                return;
+            }
+
+            const targetWhatsAppNumber = "918281675636";
+            const message = `*🔥 NEW KRONOS ORDER CONFIRMED 🔥*
+
+*📦 PRODUCT:*
+• *Name:* ${currentActiveWatch.name}
+• *Price:* ₹${currentActiveWatch.price.toLocaleString('en-IN')}
+
+*👤 ADDRESS DETAILS:*
+• *Name:* ${name}
+• *Mobile:* ${phone}
+• *City/Town:* ${city}
+• *Pincode:* ${pincode}
+• *State:* ${state}
+• *Address:* ${address}
+• *Landmark:* ${landmark ? landmark : 'None'}
+
+*💳 PAYMENT METHOD:*
+• [ ${paymentMethod} ]`;
+
+            window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
+            closeProductModal();
+        }
+
+        // --- 6. SIMPLE CART MODULES ---
+        let cart = [];
+
+        function toggleCartModal() {
+            document.getElementById('cart-modal').classList.toggle('hidden');
+            renderCartItems();
+        }
+
+        function addToCart(id) {
+            const watch = watches.find(w => w.id === id);
+            if (!watch || watch.stock === 0) return;
+
+            const target = cart.find(item => item.id === id);
+            if (target) {
+                if (target.quantity < watch.stock) target.quantity++;
+                else return alert("Max stock limit reached.");
+            } else {
+                cart.push({ ...watch, quantity: 1 });
+            }
+            updateCartCount();
+            renderCartItems();
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').innerText = cart.reduce((acc, item) => acc + item.quantity, 0);
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const totalElement = document.getElementById('cart-total-price');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-zinc-600 text-center py-6 text-xs uppercase tracking-wider">Cart is Empty</p>`;
+                totalElement.innerText = "₹0";
+                return;
+            }
+            container.innerHTML = "";
+            let grandTotal = 0;
+            cart.forEach(item => {
+                grandTotal += item.price * item.quantity;
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-zinc-900 p-2.5 border border-zinc-800">
+                        <div class="flex items-center space-x-2">
+                            <img src="${item.img}" class="w-10 h-10 object-cover">
+                            <div class="max-w-[150px]">
+                                <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
+                                <p class="text-[10px] text-brandRed font-mono">₹${item.price.toLocaleString('en-IN')} x ${item.quantity}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="text-zinc-600 hover:text-brandRed text-xs px-1"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+            });
+            totalElement.innerText = `₹${grandTotal.toLocaleString('en-IN')}`;
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartCount();
+            renderCartItems();
+        }
+
+        function checkoutAlert() {
+            if (!cart.length) return alert("Your cart is empty.");
+            alert("Use 'BUY NOW' on any watch profile page for single-click WhatsApp execution.");
+            toggleCartModal();
+        }
+    </script>
+</body>
+</html>
