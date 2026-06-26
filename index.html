@@ -35,6 +35,36 @@
     </script>
     <style>
         html { scroll-behavior: smooth; }
+        
+        /* 5-Second Luxury Zoom Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #0A0A0A;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+        #preloader-watch {
+            width: 180px;
+            height: 180px;
+            background-image: url('https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(200, 16, 46, 0.2);
+            animation: luxuryZoom 5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes luxuryZoom {
+            0% { transform: scale(0.3); opacity: 0; filter: blur(5px); }
+            15% { transform: scale(1); opacity: 1; filter: blur(0); }
+            85% { transform: scale(1.15); opacity: 1; filter: blur(0); }
+            100% { transform: scale(1.4); opacity: 0; filter: blur(2px); }
+        }
+
         /* Ultra-Responsive Mobile-First Hero View */
         .hero-container {
             position: relative;
@@ -70,6 +100,12 @@
     </style>
 </head>
 <body class="bg-brandBlack text-brandOffWhite font-sans antialiased overflow-x-hidden">
+
+    <!-- 0. PREMIUM PRELOADER Overlay -->
+    <div id="preloader">
+        <div id="preloader-watch"></div>
+        <p class="text-zinc-500 mt-8 tracking-[0.3em] text-[10px] uppercase font-bold animate-pulse">Entering Kronos Studio</p>
+    </div>
 
     <!-- 1. RESPONSIVE NAVIGATION BAR -->
     <nav class="fixed top-0 left-0 w-full z-40 bg-brandNavBlack/90 backdrop-blur-md border-b border-zinc-900 px-4 md:px-8 py-4 flex justify-between items-center">
@@ -187,7 +223,7 @@
         </div>
     </section>
 
-    <!-- 5. FULLSCREEN OVERLAY MODAL (Optimized for Mobile Keyboards) -->
+    <!-- 5. FULLSCREEN OVERLAY MODAL -->
     <div id="product-modal" class="fixed inset-0 bg-brandBlack z-50 hidden flex flex-col w-full h-full overflow-y-auto no-scrollbar">
         <!-- Back Bar -->
         <div class="sticky top-0 bg-brandNavBlack border-b border-zinc-900 px-4 py-3 flex items-center justify-between z-30">
@@ -273,7 +309,7 @@
                             </div>
                             <div>
                                 <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Full Address *</label>
-                                <textarea id="cust-address" window-rows="2" placeholder="House info, Area, Street name" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandRed resize-none"></textarea>
+                                <textarea id="cust-address" rows="2" placeholder="House info, Area, Street name" class="w-full bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandRed resize-none"></textarea>
                             </div>
                             <div>
                                 <label class="block text-[9px] uppercase tracking-widest text-zinc-500 mb-0.5 font-bold">Landmark / Nearby</label>
@@ -342,6 +378,17 @@
     <!-- INTERACTION LOGIC ENGINE -->
     <script>
         let currentActiveWatch = null;
+
+        // --- 0. PRELOADER TIME CONTROLLER ---
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.visibility = 'hidden';
+                }, 500);
+            }, 5000); // 5 Seconds Strict Timeout
+        });
 
         // --- 1. FRAMES MULTI-DEVICE RESPONSIVE SCROLL RENDERING ---
         const canvas = document.getElementById('animation-canvas');
@@ -413,26 +460,26 @@
 
         images[0].onload = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; renderFrame(0); };
 
-        // --- 2. 15 CHRONO DATA STORES ---
+        // --- 2. 15 CHRONO DATA STORES (PRICED UNDER 1000) ---
         const watches = [
-            { id: 1, name: "Kronos Crimson Stealth", price: 18500, stock: 5, img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80", desc: "Matte black alloy build casing with scratch-resistant sapphire lenses." },
-            { id: 2, name: "Vanguard Obsidian Red", price: 24999, stock: 3, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Complex open heart automatic mechanism displaying 42hr internal dynamic reserves." },
-            { id: 3, name: "Emerald Phantom Diver", price: 21000, stock: 0, img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=500&q=80", desc: "Deep sea layout secure up to 200m depth under structural ceramic plates." }, 
-            { id: 4, name: "Minimalist Slate Minimal", price: 12500, stock: 12, img: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=500&q=80", desc: "Ultra thin form factors matching executive premium lifestyle profiles." },
-            { id: 5, name: "Apex Carbon Chrono", price: 45000, stock: 2, img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=500&q=80", desc: "Full genuine carbon fiber composite base structures for durability." },
-            { id: 6, name: "Jade Vintage Aero", price: 15200, stock: 0, img: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=500&q=80", desc: "Oversized tactical indicators referencing aviation heritage formats." }, 
-            { id: 7, name: "Monolith Slate Hybrid", price: 19800, stock: 7, img: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=500&q=80", desc: "Forged carbon shield architectures built for high stress activities." },
-            { id: 8, name: "Specter Racing Crimson", price: 28500, stock: 4, img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=500&q=80", desc: "Anodized race elements matching flexible high grip fluoroelastomer straps." },
-            { id: 9, name: "Verdant Shadow Auto", price: 11000, stock: 9, img: "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=500&q=80", desc: "Sweeping structural hand gears working via ambient motion kinetics." },
-            { id: 10, name: "Dark Command Tactical", price: 32000, stock: 1, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Stealth matte PVD operations featuring integrated physical split lap timers." },
-            { id: 11, name: "Alpha Marine Chrono", price: 23500, stock: 6, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80", desc: "Deep ocean finish dials with precision speed telemetry markings." },
-            { id: 12, name: "Titan Frost Kinetic", price: 27900, stock: 4, img: "https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&w=500&q=80", desc: "Brushed raw gray accents framing active structural engineering layout fields." },
-            { id: 13, name: "Aero Stealth Ghost", price: 16500, stock: 11, img: "https://images.unsplash.com/photo-1619134778706-7015533a6150?auto=format&fit=crop&w=500&q=80", desc: "Ultra light setups matching resilient industrial weave fiber profiles." },
-            { id: 14, name: "Royal Amber Horizon", price: 34000, stock: 3, img: "https://images.unsplash.com/photo-1517462964-21fdcec3f25b?auto=format&fit=crop&w=500&q=80", desc: "Hand selected dark amber genuine skin textures paired to gold layers." },
-            { id: 15, name: "Quantum Cyber Slate", price: 39500, stock: 2, img: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?auto=format&fit=crop&w=500&q=80", desc: "High concept architecture leveraging micro engraved metal geometric indices." }
+            { id: 1, name: "Kronos Crimson Stealth", price: 499, stock: 5, img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80", desc: "Matte black alloy build casing with scratch-resistant sapphire lenses." },
+            { id: 2, name: "Vanguard Obsidian Red", price: 699, stock: 3, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Complex open heart automatic mechanism displaying internal dynamic reserves." },
+            { id: 3, name: "Emerald Phantom Diver", price: 599, stock: 0, img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=500&q=80", desc: "Deep sea layout secure up to depth under structural ceramic plates." }, 
+            { id: 4, name: "Minimalist Slate Minimal", price: 449, stock: 12, img: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=500&q=80", desc: "Ultra thin form factors matching executive premium lifestyle profiles." },
+            { id: 5, name: "Apex Carbon Chrono", price: 999, stock: 2, img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=500&q=80", desc: "Full genuine carbon fiber composite base structures for durability." },
+            { id: 6, name: "Jade Vintage Aero", price: 549, stock: 0, img: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=500&q=80", desc: "Oversized tactical indicators referencing aviation heritage formats." }, 
+            { id: 7, name: "Monolith Slate Hybrid", price: 799, stock: 7, img: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=500&q=80", desc: "Forged carbon shield architectures built for high stress activities." },
+            { id: 8, name: "Specter Racing Crimson", price: 649, stock: 4, img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=500&q=80", desc: "Anodized race elements matching flexible high grip fluoroelastomer straps." },
+            { id: 9, name: "Verdant Shadow Auto", price: 429, stock: 9, img: "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=500&q=80", desc: "Sweeping structural hand gears working via ambient motion kinetics." },
+            { id: 10, name: "Dark Command Tactical", price: 899, stock: 1, img: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80", desc: "Stealth matte PVD operations featuring integrated physical split lap timers." },
+            { id: 11, name: "Alpha Marine Chrono", price: 699, stock: 6, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80", desc: "Deep ocean finish dials with precision speed telemetry markings." },
+            { id: 12, name: "Titan Frost Kinetic", price: 749, stock: 4, img: "https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&w=500&q=80", desc: "Brushed raw gray accents framing active structural engineering layout fields." },
+            { id: 13, name: "Aero Stealth Ghost", price: 499, stock: 11, img: "https://images.unsplash.com/photo-1619134778706-7015533a6150?auto=format&fit=crop&w=500&q=80", desc: "Ultra light setups matching resilient industrial weave fiber profiles." },
+            { id: 14, name: "Royal Amber Horizon", price: 849, stock: 3, img: "https://images.unsplash.com/photo-1517462964-21fdcec3f25b?auto=format&fit=crop&w=500&q=80", desc: "Hand selected dark amber genuine skin textures paired to premium framing." },
+            { id: 15, name: "Quantum Cyber Slate", price: 949, stock: 2, img: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?auto=format&fit=crop&w=500&q=80", desc: "High concept architecture leveraging micro engraved metal geometric indices." }
         ];
 
-        // --- 3. INJECT SIMPLE & PREMIUM MINIMAL FLIPKART/AMAZON STYLE GRID WITH HOVER EFFECT ---
+        // --- 3. INJECT CARD GRID WITH PREMIUM HOVER SCALE & INTERACTION ---
         const productGrid = document.getElementById('product-grid');
 
         watches.forEach(watch => {
