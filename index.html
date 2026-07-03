@@ -514,7 +514,7 @@
 
             currentActiveWatch = watch;
             const isOutOfStock = watch.stock === 0;
-            const modalImageSrc = Array.isArray(watch.images) && watch.images.length ? watch.images[0] : 'photo/ezgif-frame-001.png';
+            const modalImageSrc = getWatchImageSrc(watch);
 
             document.getElementById('modal-watch-img').src = modalImageSrc;
             document.getElementById('modal-watch-name').innerText = watch.name;
@@ -551,6 +551,12 @@
         function closeProductModal() {
             document.getElementById('product-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+        }
+
+        function getWatchImageSrc(watch) {
+            return Array.isArray(watch.images) && watch.images.length
+                ? watch.images[0]
+                : watch.imageSrc || 'photo/ezgif-frame-001.png';
         }
 
         function triggerInstantCheckout() {
@@ -626,7 +632,7 @@
                 if (target.quantity < watch.stock) target.quantity++;
                 else return alert("Max stock limit reached.");
             } else {
-                cart.push({ ...watch, quantity: 1 });
+                cart.push({ ...watch, imageSrc: getWatchImageSrc(watch), quantity: 1 });
             }
             updateCartCount();
             renderCartItems();
@@ -647,11 +653,12 @@
             container.innerHTML = "";
             let grandTotal = 0;
             cart.forEach(item => {
+                const imageSrc = item.imageSrc || getWatchImageSrc(item);
                 grandTotal += item.price * item.quantity;
                 container.innerHTML += `
                     <div class="flex items-center justify-between bg-zinc-900 p-2.5 border border-zinc-800">
                         <div class="flex items-center space-x-2">
-                            <img src="${item.img}" class="w-10 h-10 object-cover">
+                            <img src="${imageSrc}" class="w-10 h-10 object-cover">
                             <div class="max-w-[150px]">
                                 <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
                                 <p class="text-[10px] text-white font-mono">₹${item.price.toLocaleString('en-IN')} x ${item.quantity}</p>
@@ -670,10 +677,23 @@
             renderCartItems();
         }
 
+        async function sendCartOrderToWhatsApp() {
+            if (!cart.length) return alert("Your cart is empty.");
+
+            await fetch('/api/analytics/click', { method: 'POST' });
+
+            const targetWhatsAppNumber = "918281675636";
+            const cartLines = cart.map(item => `• ${item.name} x${item.quantity} @ ₹${item.price.toLocaleString('en-IN')} = ₹${(item.price * item.quantity).toLocaleString('en-IN')}`).join('\n');
+            const grandTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const message = `*🔥 KRONOS CART ORDER REQUEST 🔥*\n\n*🛒 ORDER ITEMS:*\n${cartLines}\n\n*💰 GRAND TOTAL:* ₹${grandTotal.toLocaleString('en-IN')}\n\n*📌 PLEASE SEND YOUR NAME, PHONE, ADDRESS, AND PAYMENT METHOD IN REPLY.*`;
+
+            window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
+            toggleCartModal();
+        }
+
         function checkoutAlert() {
             if (!cart.length) return alert("Your cart is empty.");
-            alert("Use 'BUY NOW' on any watch profile page for single-click WhatsApp execution.");
-            toggleCartModal();
+            sendCartOrderToWhatsApp();
         }
     </script>
    
