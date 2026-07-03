@@ -4,111 +4,117 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-const PORT = 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Uploads folder-ile photos access cheyyan
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Ensure Uploads & Database exists
-if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
-    fs.mkdirSync(path.join(__dirname, 'uploads'));
+// --- FOLDER STRUCTURE FIX FOR RENDER ---
+// ഫയലുകൾ റൂട്ടിലാണോ അതോ demo-watch ഫോൾഡറിലാണോ എന്ന് നോക്കി static ഫയലുകൾ സെർവ് ചെയ്യുന്നു
+let publicPath = path.join(__dirname, 'public');
+let uploadsPath = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(publicPath) && fs.existsSync(path.join(__dirname, 'demo-watch', 'public'))) {
+    publicPath = path.join(__dirname, 'demo-watch', 'public');
+    uploadsPath = path.join(__dirname, 'demo-watch', 'uploads');
 }
 
-function readDatabase() {
-    if (!fs.existsSync(DATA_FILE)) {
-        const defaultData = { watches: [], analytics: { visitors: 0, clicks: 0 } };
-        fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 4));
-        return defaultData;
-    }
-    return JSON.parse(fs.readFileSync(DATA_FILE));
+app.use(express.static(publicPath));
+app.use('/uploads', express.static(uploadsPath));
+
+// Uploads ഫോൾഡർ ഇല്ലെങ്കിൽ അത് ഉണ്ടാക്കാനുള്ള കോഡ്
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
 }
 
-function writeDatabase(data) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 4));
-}
-
-// Multer Setup for File Upload (Max 10 files) - only images allowed
+// --- MULTER CONFIGURATION FOR MULTIPLE IMAGES ---
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'))
+    destination: (req, file, cb) => {
+        cb(null, uploadsPath);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
 });
+const upload = multer({ storage: storage });
 
-const fileFilter = (req, file, cb) => {
-    if (/^image\//.test(file.mimetype)) cb(null, true);
-    else cb(new Error('Only image files are allowed'), false);
+// Data File Path
+let dataFilePath = path.join(__dirname, 'data.json');
+if (!fs.existsSync(dataFilePath) && fs.existsSync(path.join(__dirname, 'demo-watch', 'data.json'))) {
+    dataFilePath = path.join(__dirname, 'demo-watch', 'data.json');
+}
+
+// Helper functions to read/write JSON data
+const readData = () => {
+    if (!fs.existsSync(dataFilePath)) return [];
+    try {
+        const data = fs.readFileSync(dataFilePath, 'utf8');
+        return JSON.parse(data || '[]');
+    } catch (e) {
+        return [];
+    }
 };
 
-const upload = multer({ storage: storage, fileFilter: fileFilter }).array('photos', 10);
+const writeData = (data) => {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
+};
 
-// --- ROUTES ---
-app.get('/', (req, res) => {
-    const db = readDatabase();
-    db.analytics.visitors++;
-    writeDatabase(db);
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// --- API ROUTES ---
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// API: Get all watches
+// 1. Get all watches
 app.get('/api/watches', (req, res) => {
-    const db = readDatabase();
-    res.json(db.watches);
+    const watches = readData();
+    res.json(watches);
 });
 
-// API: Add new watch with Multiple Photos
-app.post('/api/watches', (req, res) => {
-    upload(req, res, function (err) {
-        if (err) return res.status(500).json({ success: false, message: "Upload error" });
-
-        const db = readDatabase();
-
-        // Map uploaded files to URLs (safely handle no files)
-        const photoUrls = (req.files || []).map(file => `/uploads/${file.filename}`);
+// 2. Add a new watch (Max 10 Images)
+app.post('/api/watches', upload.array('images', 10), (req, res) => {
+    try {
+        const watches = readData();
+        
+        // അപ്‌ലോഡ് ചെയ്ത ഫയലുകളുടെ പാത്തുകൾ എടുക്കുന്നു
+        const filePaths = req.files ? req.files.map(file => `/uploads/${path.basename(file.path)}`) : [];
 
         const newWatch = {
-            id: Date.now(),
-            name: req.body.name || 'Untitled Watch',
-            price: parseInt(req.body.price) || 0,
-            stock: parseInt(req.body.stock) || 0,
-            desc: req.body.desc || "",
-            images: photoUrls // Array of image URLs
+            id: Date.now().toString(),
+            name: req.body.name,
+            price: req.body.price,
+            description: req.body.description,
+            images: filePaths // Array of image URLs
         };
 
-        db.watches.push(newWatch);
-        writeDatabase(db);
-        res.status(201).json({ success: true, watch: newWatch });
-    });
-});
-
-// API: Delete watch
-app.delete('/api/watches/:id', (req, res) => {
-    const db = readDatabase();
-    const watchId = parseInt(req.params.id);
-    
-    // Optional: Delete images from folder too
-    const watch = db.watches.find(w => w.id === watchId);
-    if (watch && watch.images) {
-        watch.images.forEach(img => {
-            // img expected like '/uploads/12345-file.png' or 'uploads/12345-file.png'
-            const relative = img.startsWith('/') ? img.slice(1) : img;
-            const filePath = path.join(__dirname, relative);
-            if (fs.existsSync(filePath)) {
-                try { fs.unlinkSync(filePath); } catch (e) { console.warn('Failed to delete', filePath, e); }
-            }
-        });
+        watches.push(newWatch);
+        writeData(watches);
+        res.status(201).json({ success: true, message: 'Watch added successfully!', watch: newWatch });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error adding watch' });
     }
-
-    db.watches = db.watches.filter(w => w.id !== watchId);
-    writeDatabase(db);
-    res.json({ success: true });
 });
 
+// --- FRONTEND ROUTES ---
+
+// Main website route (index.html)
+app.get('/', (req, res) => {
+    const indexPath = path.join(publicPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('index.html not found');
+    }
+});
+
+// Admin Page Route
+app.get('/admin', (req, res) => {
+    const adminPath = path.join(publicPath, 'admin.html');
+    if (fs.existsSync(adminPath)) {
+        res.sendFile(adminPath);
+    } else {
+        res.status(404).send('admin.html not found');
+    }
+});
+
+// Start Server
 app.listen(PORT, () => {
-    console.log(`Kronos Engine Running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
