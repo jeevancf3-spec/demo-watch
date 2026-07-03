@@ -130,18 +130,33 @@
 
             try {
                 const res = await fetch('/api/watches', { method: 'POST', body: form });
-                const data = await res.json();
-                if (res.ok && (data.success || data.watch)) {
+                const contentType = res.headers.get('content-type') || '';
+                let data = null;
+                let serverMessage = res.statusText;
+
+                if (contentType.includes('application/json')) {
+                    try {
+                        data = await res.json();
+                        serverMessage = data.message || data.error || JSON.stringify(data);
+                    } catch (jsonErr) {
+                        console.error('Failed to parse JSON error body:', jsonErr);
+                    }
+                } else {
+                    const text = await res.text();
+                    if (text) serverMessage = text;
+                }
+
+                if (res.ok && (data?.success || data?.watch)) {
                     alert('Saved successfully');
                     this.reset();
                     photosPreview.innerHTML = '';
                     loadWatches();
                 } else {
-                    alert(data.message || 'Failed to save');
+                    alert('Upload failed: ' + (serverMessage || res.statusText));
                 }
             } catch (err) {
                 console.error(err);
-                alert('Upload failed');
+                alert('Upload failed: ' + (err.message || 'Network error'));
             }
         });
 
