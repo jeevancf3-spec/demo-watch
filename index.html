@@ -485,7 +485,7 @@
                 const isOutOfStock = watch.stock === 0;
                 const imageSrc = Array.isArray(watch.images) && watch.images.length ? watch.images[0] : 'photo/ezgif-frame-001.png';
                 const card = `
-                    <div onclick="openProductModal(${watch.id})" class="bg-white border border-zinc-200 flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg rounded-none">
+                    <div onclick="openProductModal('${watch.id}')" class="bg-white border border-zinc-200 flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg rounded-none">
                         <div class="relative overflow-hidden aspect-square w-full bg-zinc-50 p-2">
                             <img src="${imageSrc}" alt="${watch.name}" class="w-full h-full object-contain mx-auto transition-transform duration-500 group-hover:scale-105">
                             ${isOutOfStock ? `
@@ -664,7 +664,7 @@
                                 <p class="text-[10px] text-white font-mono">₹${item.price.toLocaleString('en-IN')} x ${item.quantity}</p>
                             </div>
                         </div>
-                        <button onclick="removeFromCart(${item.id})" class="text-white hover:text-zinc-300 text-xs px-1"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="removeFromCart('${item.id}')" class="text-white hover:text-zinc-300 text-xs px-1"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 `;
             });
