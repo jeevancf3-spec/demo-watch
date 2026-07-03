@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static Files serving (HTML, CSS, JS ഫയലുകൾക്കായി)
+// Static Files serving
 app.use(express.static(__dirname));
 
 // --- 🔴 ഇലേക്ക് നിന്റെ API KEY പേസ്റ്റ് ചെയ്യുക 🔴 ---
@@ -86,14 +86,20 @@ app.post('/api/watches', upload.array('images', 10), async (req, res) => {
     }
 });
 
-// 3. പ്രൊഡക്റ്റുകൾ ഡിലീറ്റ് ചെയ്യാനുള്ള പുതിയ വഴി (Delete Watch by ID)
+// 3. പ്രൊഡക്റ്റുകൾ ഡിലീറ്റ് ചെയ്യാനുള്ള വഴി (വഴി 2: സ്ട്രോങ്ങ് ഐഡി ചെക്കിങ്)
 app.delete('/api/watches/:id', (req, res) => {
     try {
         const watchId = req.params.id;
         let watches = readData();
 
-        // ഡിലീറ്റ് ചെയ്യേണ്ട വാച്ച് ഒഴികെ ബാക്കിയുള്ളവ മാത്രം ഫിൽട്ടർ ചെയ്ത് എടുക്കുന്നു
-        const updatedWatches = watches.filter(watch => watch.id !== watchId);
+        // പഴയതും പുതിയതുമായ എല്ലാ തരം ഐഡികളും (String/Number) കൃത്യമായി ഫിൽട്ടർ ചെയ്യുന്നു
+        const updatedWatches = watches.filter(watch => {
+            // ഐഡി ഇല്ലാത്ത പഴയ വാച്ചുകൾ ആണെങ്കിൽ അതിനെ ഡിലീറ്റ് ലിസ്റ്റിൽ ഉൾപ്പെടുത്തി ഒഴിവാക്കുന്നു
+            if (!watch.id) return false; 
+            
+            // ഐഡി ഉണ്ടെങ്കിൽ അത് മാച്ച് ചെയ്യാത്തവ മാത്രം ബാക്കിവെക്കുന്നു
+            return watch.id.toString() !== watchId.toString();
+        });
 
         if (watches.length === updatedWatches.length) {
             return res.status(404).json({ success: false, message: 'Watch not found!' });
