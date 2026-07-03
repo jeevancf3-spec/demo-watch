@@ -201,10 +201,32 @@
                     btn.addEventListener('click', async () => {
                         const id = btn.getAttribute('data-id');
                         if(!confirm('Remove product?')) return;
+                        const itemEl = btn.closest('.item');
+                        btn.disabled = true;
                         try{
-                            await fetch('/api/watches/' + id, { method: 'DELETE' });
-                            loadWatches();
-                        }catch(e){console.error(e);alert('Delete failed')}
+                            const res = await fetch(`/api/watches/${encodeURIComponent(id)}`, { method: 'DELETE' });
+                            const contentType = res.headers.get('content-type') || '';
+                            let serverMessage = res.statusText;
+                            let data = null;
+                            if (contentType.includes('application/json')) {
+                                try { data = await res.json(); serverMessage = data.message || data.error || JSON.stringify(data); } catch(jsonErr) { console.error('JSON parse error:', jsonErr); }
+                            } else {
+                                const text = await res.text(); if (text) serverMessage = text;
+                            }
+
+                            if (res.ok) {
+                                // remove the item from the UI
+                                if (itemEl && itemEl.parentNode) itemEl.parentNode.removeChild(itemEl);
+                                // Optionally refresh the list instead: loadWatches();
+                            } else {
+                                alert('Delete failed: ' + (serverMessage || res.statusText));
+                            }
+                        }catch(e){
+                            console.error(e);
+                            alert('Delete failed: ' + (e.message || 'Network error'));
+                        } finally {
+                            btn.disabled = false;
+                        }
                     });
                 });
 
