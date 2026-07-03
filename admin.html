@@ -60,8 +60,8 @@
                             <input id="stock" name="stock" type="number" min="0" placeholder="5" required>
                         </div>
                         <div>
-                            <label for="photos">Attach Photos (images only) — max 10</label>
-                            <input id="photos" name="photos" type="file" accept="image/*" multiple max="10" data-max="10" required>
+                            <label for="images">Attach Photos (images only) — max 10</label>
+                            <input id="images" name="images" type="file" accept="image/*" multiple max="10" data-max="10" required>
                             <div id="photosPreview" class="preview" aria-hidden="true"></div>
                         </div>
                     </div>
@@ -92,17 +92,17 @@
         function el(html){const d=document.createElement('div');d.innerHTML=html.trim();return d.firstChild}
 
         // Preview selected files (client-side)
-        const photosInput = document.getElementById('photos');
+        const imagesInput = document.getElementById('images');
         const photosPreview = document.getElementById('photosPreview');
-        photosInput.addEventListener('change', () => {
+        imagesInput.addEventListener('change', () => {
             photosPreview.innerHTML = '';
-            const max = parseInt(photosInput.getAttribute('data-max') || '10', 10);
-            if (photosInput.files.length > max) {
+            const max = parseInt(imagesInput.getAttribute('data-max') || '10', 10);
+            if (imagesInput.files.length > max) {
                 alert('Please select at most ' + max + ' images.');
-                photosInput.value = '';
+                imagesInput.value = '';
                 return;
             }
-            Array.from(photosInput.files).forEach(file => {
+            Array.from(imagesInput.files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
                 const img = document.createElement('img');
                 img.alt = file.name;
@@ -116,16 +116,16 @@
         // Submit form via FormData with multiple photos
         document.getElementById('watchForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            const max = parseInt(photosInput.getAttribute('data-max') || '10', 10);
-            if (photosInput.files.length > max) return alert('Maximum ' + max + ' images allowed.');
+            const max = parseInt(imagesInput.getAttribute('data-max') || '10', 10);
+            if (imagesInput.files.length > max) return alert('Maximum ' + max + ' images allowed.');
 
             const form = new FormData();
             form.append('name', document.getElementById('name').value.trim());
             form.append('price', document.getElementById('price').value);
             form.append('stock', document.getElementById('stock').value);
             form.append('desc', document.getElementById('desc').value.trim());
-            for (let i = 0; i < photosInput.files.length; i++) {
-                form.append('photos', photosInput.files[i]);
+            for (let i = 0; i < imagesInput.files.length; i++) {
+                form.append('images', imagesInput.files[i]);
             }
 
             try {
