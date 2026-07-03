@@ -10,17 +10,11 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- FOLDER STRUCTURE FIX FOR RENDER ---
-// ഫയലുകൾ റൂട്ടിലാണോ അതോ demo-watch ഫോൾഡറിലാണോ എന്ന് നോക്കി static ഫയലുകൾ സെർവ് ചെയ്യുന്നു
-let publicPath = path.join(__dirname, 'public');
+// --- STATIC FILES CONFIGURATION ---
+// നിന്റെ ഫയലുകൾ നേരിട്ട് റൂട്ടിൽ കിടക്കുന്നതുകൊണ്ട് __dirname തന്നെ ഉപയോഗിക്കുന്നു
+app.use(express.static(__dirname));
+
 let uploadsPath = path.join(__dirname, 'uploads');
-
-if (!fs.existsSync(publicPath) && fs.existsSync(path.join(__dirname, 'demo-watch', 'public'))) {
-    publicPath = path.join(__dirname, 'demo-watch', 'public');
-    uploadsPath = path.join(__dirname, 'demo-watch', 'uploads');
-}
-
-app.use(express.static(publicPath));
 app.use('/uploads', express.static(uploadsPath));
 
 // Uploads ഫോൾഡർ ഇല്ലെങ്കിൽ അത് ഉണ്ടാക്കാനുള്ള കോഡ്
@@ -39,11 +33,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Data File Path
-let dataFilePath = path.join(__dirname, 'data.json');
-if (!fs.existsSync(dataFilePath) && fs.existsSync(path.join(__dirname, 'demo-watch', 'data.json'))) {
-    dataFilePath = path.join(__dirname, 'demo-watch', 'data.json');
-}
+// Data File Path (നിന്റെ ഗിറ്റ്ഹബ്ബിലുള്ള watches.json ഫയലിലേക്ക് ലിങ്ക് ചെയ്യുന്നു)
+const dataFilePath = path.join(__dirname, 'watches.json');
 
 // Helper functions to read/write JSON data
 const readData = () => {
@@ -96,17 +87,17 @@ app.post('/api/watches', upload.array('images', 10), (req, res) => {
 
 // Main website route (index.html)
 app.get('/', (req, res) => {
-    const indexPath = path.join(publicPath, 'index.html');
+    const indexPath = path.join(__dirname, 'index.html');
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        res.status(404).send('index.html not found');
+        res.status(404).send('index.html not found inside ' + __dirname);
     }
 });
 
 // Admin Page Route
 app.get('/admin', (req, res) => {
-    const adminPath = path.join(publicPath, 'admin.html');
+    const adminPath = path.join(__dirname, 'admin.html');
     if (fs.existsSync(adminPath)) {
         res.sendFile(adminPath);
     } else {
