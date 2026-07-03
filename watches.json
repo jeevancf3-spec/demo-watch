@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Kronos Stealth Alpha",
+    "price": 12500,
+    "stock": 4,
+    "img": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80",
+    "desc": "Premium matte black automatic skeleton design.",
+    "reviews": []
+  },
+  {
+    "id": 2,
+    "name": "Crimson Monaco Chrono",
+    "price": 14800,
+    "stock": 2,
+    "img": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=500&q=80",
+    "desc": "Luxury dark red accent dial sporting classic build.",
+    "reviews": []
+  },
+  {
+    "id": 3,
+    "name": "fff",
+    "price": 200,
+    "stock": 3,
+    "img": "/uploads/1782991362925-1358205.png",
+    "desc": "super",
+    "reviews": []
+  },
+  {
+    "id": 4,
+    "name": "amithysst",
+    "price": 130000,
+    "stock": 3,
+    "img": "/uploads/1782992826757-yt thumbn.jpg",
+    "desc": "Premium Edition",
+    "reviews": []
+  },
+  {
+    "id": 5,
+    "name": "joyal shiboo",
+    "price": 100,
+    "stock": 0,
+    "img": "/uploads/1782992896569-jyl.jpg",
+    "desc": "Premium Edition",
+    "reviews": []
+  }
+]

@@ -1,0 +1,60 @@
+[
+  {
+    "orderId": "KRN-633478",
+    "customerName": "jeeg",
+    "customerPhone": "3545435",
+    "watchName": "Crimson Monaco Chrono",
+    "price": 14800,
+    "address": {
+      "city": "hfdfg",
+      "pincode": "868686",
+      "address": "tujhugy",
+      "landmark": "",
+      "state": "Kerala"
+    },
+    "paymentMethod": "Cash on Delivery (COD)",
+    "date": "7/2/2026, 4:57:13 PM"
+  },
+  {
+    "orderId": "KRN-584756",
+    "customerName": "jjjjj",
+    "customerPhone": "kkkk",
+    "watchName": "Kronos Stealth Alpha",
+    "price": 12500,
+    "address": {
+      "city": "hfdfg",
+      "pincode": "756576",
+      "address": "ffyuhvbg"
+    },
+    "paymentMethod": "Cash on Delivery (COD)",
+    "date": "7/2/2026, 5:13:04 PM"
+  },
+  {
+    "orderId": "KRN-003368",
+    "customerName": "jeevA",
+    "customerPhone": "123456789",
+    "watchName": "joyal shiboo",
+    "price": 100,
+    "address": {
+      "city": "hfdfg",
+      "pincode": "756576",
+      "address": "PALIKUNNU"
+    },
+    "paymentMethod": "Cash on Delivery (COD)",
+    "date": "7/2/2026, 5:20:03 PM"
+  },
+  {
+    "orderId": "KRN-042937",
+    "customerName": "jeevA",
+    "customerPhone": "123456789",
+    "watchName": "joyal shiboo",
+    "price": 100,
+    "address": {
+      "city": "hfdfg",
+      "pincode": "756576",
+      "address": "PALIKUNNU"
+    },
+    "paymentMethod": "Cash on Delivery (COD)",
+    "date": "7/2/2026, 5:20:42 PM"
+  }
+]
