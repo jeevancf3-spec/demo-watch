@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 const multer = require('multer');
-const axios = require('axios'); // ഇമേജ് ക്ലൗഡിലേക്ക് അയക്കാൻ ആവശ്യമാണ്
+const axios = require('axios');
 const FormData = require('form-data');
+const mongoose = require('mongoose'); // മംഗോഡിബി പാക്കേജ്
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,49 +11,56 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Static Files serving
 app.use(express.static(__dirname));
 
-// --- 🔴 ഇലേക്ക് നിന്റെ API KEY പേസ്റ്റ് ചെയ്യുക 🔴 ---
-// നീ ഗിറ്റ്‌ഹബ്ബിൽ ഇട്ട നിന്റെ സ്വന്തം ImgBB API Key ഇവിടെ ഉണ്ടെന്ന് ഉറപ്പാക്കുക
+// --- 🔴 CONFIGURATIONS (നിന്റെ കീകൾ ഇവിടെ നൽകുക) 🔴 ---
 const IMGBB_API_KEY = 'fa4975a1faedd2da6323a3ff402b214d'; 
+const MONGO_URI = 'mongodb+srv://jeevancf:<db_qwert.CodeX>@cluster0.e92qmxu.mongodb.net/?appName=Cluster0';
 
-// മൾട്ടർ താൽക്കാലികമായി റാമിൽ ഫയൽ വെക്കാൻ ഉപയോഗിക്കുന്നു
+// MongoDB Connection
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('MongoDB Connected Successfully!'))
+    .catch(err => console.error('MongoDB Connection Error:', err));
+
+// Define Watch Schema (ഡാറ്റാബേസ് ഘടന)
+const watchSchema = new mongoose.Schema({
+    name: String,
+    price: String,
+    description: String,
+    images: [String]
+}, { timestamps: true });
+
+const Watch = mongoose.model('Watch', watchSchema);
+
+// Multer Config
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Database File Path
-const dataFilePath = path.join(__dirname, 'watches.json');
-
-const readData = () => {
-    if (!fs.existsSync(dataFilePath)) return [];
-    try {
-        const data = fs.readFileSync(dataFilePath, 'utf8');
-        return JSON.parse(data || '[]');
-    } catch (e) {
-        return [];
-    }
-};
-
-const writeData = (data) => {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
-};
-
 // --- 🌐 API ROUTES ---
 
-// 1. എല്ലാ വാച്ചുകളും എടുക്കാൻ (Get All Watches)
-app.get('/api/watches', (req, res) => {
-    res.json(readData());
+// 1. Get All Watches from MongoDB
+app.get('/api/watches', async (req, res) => {
+    try {
+        const watches = await Watch.find().sort({ createdAt: -1 });
+        // പഴയ ഫ്രണ്ട്എൻഡ് കോഡിന് മാച്ച് ആകാൻ _id നമ്മൾ id ആക്കി മാറ്റുന്നു
+        const formattedWatches = watches.map(w => ({
+            id: w._id.toString(),
+            name: w.name,
+            price: w.price,
+            description: w.description,
+            images: w.images
+        }));
+        res.json(formattedWatches);
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching data' });
+    }
 });
 
-// 2. പുതിയ വാച്ച് ക്ലൗഡ് അപ്‌ലോഡ് വഴി ആഡ് ചെയ്യാൻ (Add New Watch)
+// 2. Add New Watch to MongoDB
 app.post('/api/watches', upload.array('images', 10), async (req, res) => {
     try {
-        const watches = readData();
         const imageUrls = [];
 
-        // അപ്‌ലോഡ് ചെയ്ത ഓരോ ഫോട്ടോയും ImgBB ക്ലൗഡിലേക്ക് അയക്കുന്നു
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 const formData = new FormData();
@@ -64,65 +71,45 @@ app.post('/api/watches', upload.array('images', 10), async (req, res) => {
                 });
 
                 if (response.data && response.data.data && response.data.data.url) {
-                    imageUrls.push(response.data.data.url); // പെർമനന്റ് ക്ലൗഡ് ലിങ്ക് ലിസ്റ്റിലേക്ക് ചേർക്കുന്നു
+                    imageUrls.push(response.data.data.url);
                 }
             }
         }
 
-        const newWatch = {
-            id: Date.now().toString(),
+        const newWatch = new Watch({
             name: req.body.name,
             price: req.body.price,
             description: req.body.description,
-            images: imageUrls // ക്ലൗഡ് ലിങ്കുകൾ ഇവിടെ സേവ് ആകുന്നു
-        };
+            images: imageUrls
+        });
 
-        watches.push(newWatch);
-        writeData(watches);
-        res.status(201).json({ success: true, message: 'Watch added successfully to cloud!', watch: newWatch });
+        await newWatch.save();
+        res.status(201).json({ success: true, message: 'Watch added to cloud database!', watch: newWatch });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Cloud upload failed: ' + error.message });
+        res.status(500).json({ success: false, message: 'Cloud error: ' + error.message });
     }
 });
 
-// 3. പ്രൊഡക്റ്റുകൾ ഡിലീറ്റ് ചെയ്യാനുള്ള വഴി (വഴി 2: സ്ട്രോങ്ങ് ഐഡി ചെക്കിങ്)
-app.delete('/api/watches/:id', (req, res) => {
+// 3. Delete Watch from MongoDB
+app.delete('/api/watches/:id', async (req, res) => {
     try {
         const watchId = req.params.id;
-        let watches = readData();
+        const deletedWatch = await Watch.findByIdAndDelete(watchId);
 
-        // പഴയതും പുതിയതുമായ എല്ലാ തരം ഐഡികളും (String/Number) കൃത്യമായി ഫിൽട്ടർ ചെയ്യുന്നു
-        const updatedWatches = watches.filter(watch => {
-            // ഐഡി ഇല്ലാത്ത പഴയ വാച്ചുകൾ ആണെങ്കിൽ അതിനെ ഡിലീറ്റ് ലിസ്റ്റിൽ ഉൾപ്പെടുത്തി ഒഴിവാക്കുന്നു
-            if (!watch.id) return false; 
-            
-            // ഐഡി ഉണ്ടെങ്കിൽ അത് മാച്ച് ചെയ്യാത്തവ മാത്രം ബാക്കിവെക്കുന്നു
-            return watch.id.toString() !== watchId.toString();
-        });
-
-        if (watches.length === updatedWatches.length) {
+        if (!deletedWatch) {
             return res.status(404).json({ success: false, message: 'Watch not found!' });
         }
 
-        writeData(updatedWatches);
         res.json({ success: true, message: 'Watch deleted successfully!' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error deleting watch' });
     }
 });
 
-// --- 📄 FRONTEND ROUTES ---
+// Frontend Routes
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'admin.html')); });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-// Server Start
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
