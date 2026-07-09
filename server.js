@@ -3,12 +3,11 @@ const path = require('path');
 const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
-const mongoose = require('mongoose'); // മംഗോഡിബി പാക്കേജ്
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
@@ -22,33 +21,35 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('MongoDB Connected Successfully!'))
     .catch(err => console.error('MongoDB Connection Error:', err));
 
-// Define Watch Schema (ഡാറ്റാബേസ് ഘടന)
+// Define Watch Schema (പുതിയ ഫീച്ചറുകൾ ഉൾപ്പെടുത്തി പരിഷ്കരിച്ചത്)
 const watchSchema = new mongoose.Schema({
     name: String,
     price: String,
     description: String,
-    images: [String]
+    images: [String],
+    freeDelivery: { type: Boolean, default: false }, // ഫ്രീ ഡെലിവറി ഉണ്ടോ (True/False)
+    offerText: { type: String, default: '' }         // ഓഫർ വിവരം (ഉദാ: 20% OFF)
 }, { timestamps: true });
 
 const Watch = mongoose.model('Watch', watchSchema);
 
-// Multer Config
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // --- 🌐 API ROUTES ---
 
-// 1. Get All Watches from MongoDB
+// 1. Get All Watches
 app.get('/api/watches', async (req, res) => {
     try {
         const watches = await Watch.find().sort({ createdAt: -1 });
-        // പഴയ ഫ്രണ്ട്എൻഡ് കോഡിന് മാച്ച് ആകാൻ _id നമ്മൾ id ആക്കി മാറ്റുന്നു
         const formattedWatches = watches.map(w => ({
             id: w._id.toString(),
             name: w.name,
             price: w.price,
             description: w.description,
-            images: w.images
+            images: w.images,
+            freeDelivery: w.freeDelivery,
+            offerText: w.offerText
         }));
         res.json(formattedWatches);
     } catch (error) {
@@ -56,7 +57,7 @@ app.get('/api/watches', async (req, res) => {
     }
 });
 
-// 2. Add New Watch to MongoDB
+// 2. Add New Watch
 app.post('/api/watches', upload.array('images', 10), async (req, res) => {
     try {
         const imageUrls = [];
@@ -80,17 +81,20 @@ app.post('/api/watches', upload.array('images', 10), async (req, res) => {
             name: req.body.name,
             price: req.body.price,
             description: req.body.description,
-            images: imageUrls
+            images: imageUrls,
+            // ഫ്രണ്ട്എൻഡിൽ നിന്ന് വരുന്ന പുതിയ ഡാറ്റ ഇവിടെ സേവ് ചെയ്യുന്നു
+            freeDelivery: req.body.freeDelivery === 'true' || req.body.freeDelivery === true,
+            offerText: req.body.offerText || ''
         });
 
         await newWatch.save();
-        res.status(201).json({ success: true, message: 'Watch added to cloud database!', watch: newWatch });
+        res.status(201).json({ success: true, message: 'Watch added successfully!', watch: newWatch });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Cloud error: ' + error.message });
     }
 });
 
-// 3. Delete Watch from MongoDB
+// 3. Delete Watch
 app.delete('/api/watches/:id', async (req, res) => {
     try {
         const watchId = req.params.id;
