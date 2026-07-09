@@ -14,7 +14,7 @@ app.use(express.static(__dirname));
 
 // --- 🔴 CONFIGURATIONS (നിന്റെ കീകൾ ഇവിടെ നൽകുക) 🔴 ---
 const IMGBB_API_KEY = 'fa4975a1faedd2da6323a3ff402b214d'; 
-const MONGO_URI = 'mongodb+srv://jeevancf:<db_qwert.CodeX>@cluster0.e92qmxu.mongodb.net/?appName=Cluster0';
+const MONGO_URI = 'mongodb+srv://jeevancf:db_qwert.CodeX@cluster0.e92qmxu.mongodb.net/?appName=Cluster0';
 
 // MongoDB Connection
 mongoose.connect(MONGO_URI)
