@@ -71,6 +71,17 @@
                         <textarea id="desc" name="desc" rows="3" placeholder="Short description"></textarea>
                     </div>
 
+                    <div class="row" style="margin-top:12px;">
+                        <div style="display:flex;align-items:center;gap:10px;padding:14px 12px;border:1px solid #e6e6e6;border-radius:6px;background:#fafafa;">
+                            <input id="freeDelivery" name="freeDelivery" type="checkbox" style="width:18px;height:18px;accent:#000;">
+                            <label for="freeDelivery" style="margin:0;font-size:13px;color:var(--text);font-weight:700;">Free Delivery</label>
+                        </div>
+                        <div>
+                            <label for="offerText">Offer Label</label>
+                            <input id="offerText" name="offerText" type="text" placeholder="e.g., 20% OFF or Special Offer">
+                        </div>
+                    </div>
+
                     <div style="margin-top:14px;display:flex;gap:12px;align-items:center">
                         <button type="submit" class="primary">Save Product</button>
                         <span class="small">Files will be uploaded to server and stored in <strong>/uploads</strong></span>
@@ -124,6 +135,8 @@
             form.append('price', document.getElementById('price').value);
             form.append('stock', document.getElementById('stock').value);
             form.append('desc', document.getElementById('desc').value.trim());
+            form.append('freeDelivery', document.getElementById('freeDelivery').checked ? 'true' : 'false');
+            form.append('offerText', document.getElementById('offerText').value.trim());
             for (let i = 0; i < imagesInput.files.length; i++) {
                 form.append('images', imagesInput.files[i]);
             }
